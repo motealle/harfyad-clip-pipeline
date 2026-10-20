@@ -39,7 +39,11 @@ jobs:
           python -u scripts/transcribe.py "${{ inputs.source }}" out 2>&1 | tee -a run.log
       - name: Cut clips
         if: inputs.mode == 'cut'
-        run: python scripts/cut.py "${{ inputs.source }}" "${{ inputs.plan }}" out
+        shell: bash
+        run: |
+          set -o pipefail
+          which ffmpeg ffprobe; ls -la "${{ inputs.source }}" "${{ inputs.plan }}" 2>&1 | tee run.log
+          python -u scripts/cut.py "${{ inputs.source }}" "${{ inputs.plan }}" out 2>&1 | tee -a run.log
       - name: Publish log to ci-logs branch
         if: always()
         env:
