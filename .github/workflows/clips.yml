@@ -7,7 +7,7 @@ on:
         required: true
         default: transcribe
         type: choice
-        options: [transcribe, cut, analyze]
+        options: [transcribe, cut, analyze, fetch]
       source:
         description: "audio path in repo, e.g. inputs/sample.mp3"
         required: true
@@ -47,6 +47,13 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           ffmpeg -version | head -1
+      - name: Fetch test audio into repo
+        if: inputs.mode == 'fetch'
+        run: |
+          python scripts/fetch_archive.py "${{ inputs.source }}" inputs
+          git config user.name github-actions
+          git config user.email actions@github.com
+          git add inputs && git commit -m "test audio: ${{ inputs.source }}" && git push
       - name: Analyze clip
         if: inputs.mode == 'analyze'
         run: python scripts/analyze.py "${{ inputs.source }}" out
