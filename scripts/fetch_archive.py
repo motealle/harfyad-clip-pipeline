@@ -19,7 +19,7 @@ if not pick:
     sys.exit("no match")
 f = min(pick, key=lambda f: int(f.get("size", 0) or 0))
 out.mkdir(parents=True, exist_ok=True)
-dest = out / f"archive-{re.sub(r'[^A-Za-z0-9]+', '-', ident)[:40]}-{re.sub(r'[^A-Za-z0-9]+', '-', f['name'])[:60]}"
+dest = out / ('archive-' + re.sub(r'[^A-Za-z0-9]+', '-', ident)[:30] + '-' + re.sub(r'[^A-Za-z0-9]+', '-', f['name'][:-4])[:60] + '.mp3')
 url = f"https://archive.org/download/{ident}/{urllib.parse.quote(f['name'])}"
 with urllib.request.urlopen(url, timeout=300) as r, open(dest, "wb") as fh:
     while chunk := r.read(1 << 16):
