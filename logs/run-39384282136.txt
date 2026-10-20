@@ -1,0 +1,14 @@
+faster_whisper ok 3.12.15 (main, Oct  1 2026, 02:35:59) [GCC 13.3.0]
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Traceback (most recent call last):
+  File "/home/runner/work/harfyad-clip-pipeline/harfyad-clip-pipeline/scripts/transcribe.py", line 13, in <module>
+    segs, info = model.transcribe(src, language="fa", vad_filter=True, beam_size=5)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/faster_whisper/transcribe.py", line 821, in transcribe
+    audio = decode_audio(audio, sampling_rate=sampling_rate)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/faster_whisper/audio.py", line 46, in decode_audio
+    with av.open(input_file, mode="r", metadata_errors="ignore") as container:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "av/container/core.py", line 479, in av.container.core.open
+TypeError: open() got an unexpected keyword argument 'metadata_errors'
