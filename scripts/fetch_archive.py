@@ -14,14 +14,16 @@ if not sub:
     for f in mp3[:60]:
         print(f["name"], f.get("size"))
     sys.exit(0)
-pick = [f for f in mp3 if sub.lower() in f["name"].lower()]
-if not pick:
+pats = [s for s in sub.split("|") if s]
+picks = [f for f in mp3 if any(s.lower() in f["name"].lower() for s in pats)]
+if not picks:
     sys.exit("no match")
-f = min(pick, key=lambda f: int(f.get("size", 0) or 0))
 out.mkdir(parents=True, exist_ok=True)
-dest = out / ('archive-' + re.sub(r'[^A-Za-z0-9]+', '-', ident)[:30] + '-' + re.sub(r'[^A-Za-z0-9]+', '-', f['name'][:-4])[:60] + '.mp3')
-url = f"https://archive.org/download/{ident}/{urllib.parse.quote(f['name'])}"
-with urllib.request.urlopen(url, timeout=300) as r, open(dest, "wb") as fh:
-    while chunk := r.read(1 << 16):
-        fh.write(chunk)
-print("saved", dest.name, dest.stat().st_size)
+slug = lambda s: re.sub(r"[^A-Za-z0-9]+", "-", s).strip("-")
+for f in picks:
+    dest = out / ("archive-" + slug(ident)[:30] + "-" + slug(f["name"][:-4])[:60] + ".mp3")
+    url = f"https://archive.org/download/{ident}/{urllib.parse.quote(f['name'])}"
+    with urllib.request.urlopen(url, timeout=300) as r, open(dest, "wb") as fh:
+        while chunk := r.read(1 << 16):
+            fh.write(chunk)
+    print("saved", dest.name, dest.stat().st_size)
