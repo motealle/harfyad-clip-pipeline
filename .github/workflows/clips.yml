@@ -17,7 +17,7 @@ on:
         required: false
         default: plans/test-plan.json
 permissions:
-  contents: read
+  contents: write
 jobs:
   run:
     runs-on: ubuntu-24.04
@@ -32,10 +32,22 @@ jobs:
         run: pip install -r requirements.txt
       - name: Transcribe
         if: inputs.mode == 'transcribe'
-        run: python scripts/transcribe.py "${{ inputs.source }}" out
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u -c "import faster_whisper, sys; print('faster_whisper ok', sys.version)" 2>&1 | tee run.log
+          python -u scripts/transcribe.py "${{ inputs.source }}" out 2>&1 | tee -a run.log
       - name: Cut clips
         if: inputs.mode == 'cut'
         run: python scripts/cut.py "${{ inputs.source }}" "${{ inputs.plan }}" out
+      - name: Publish log to ci-logs branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          touch run.log
+          gh api repos/${{ github.repository }}/git/refs -f ref=refs/heads/ci-logs -f sha=${{ github.sha }} >/dev/null 2>&1 || true
+          gh api -X PUT repos/${{ github.repository }}/contents/logs/run-${{ github.run_id }}.txt -f message="log ${{ github.run_id }}" -f branch=ci-logs -f content="$(base64 -w0 run.log)" >/dev/null
       - uses: actions/upload-artifact@v4
         with:
           name: clips-${{ inputs.mode }}-${{ github.run_id }}
