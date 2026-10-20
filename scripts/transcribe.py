@@ -10,7 +10,8 @@ src, out = sys.argv[1], pathlib.Path(sys.argv[2])
 model_name = sys.argv[3] if len(sys.argv) > 3 else "small"
 out.mkdir(parents=True, exist_ok=True)
 model = WhisperModel(model_name, device="cpu", compute_type="int8")
-segs, info = model.transcribe(src, language="fa", vad_filter=True, beam_size=5)
+PROMPT = "متن فارسی درباره‌ی اخلاق، با گفتار یک استاد؛ نشانه‌گذاری کامل."
+segs, info = model.transcribe(src, language="fa", vad_filter=True, beam_size=5, initial_prompt=PROMPT, condition_on_previous_text=False, temperature=0.0)
 rows = [{"start": round(s.start, 2), "end": round(s.end, 2), "text": s.text.strip()} for s in segs]
 (out / "segments.json").write_text(json.dumps({"language": info.language, "duration": round(info.duration, 2), "model": model_name, "segments": rows}, ensure_ascii=False, indent=1), encoding="utf-8")
 with open(out / "transcript.srt", "w", encoding="utf-8") as f:
