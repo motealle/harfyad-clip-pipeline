@@ -1,0 +1,43 @@
+name: clips
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "transcribe: timecoded text · cut: clips from a plan"
+        required: true
+        default: transcribe
+        type: choice
+        options: [transcribe, cut]
+      source:
+        description: "audio path in repo, e.g. inputs/sample.mp3"
+        required: true
+        default: inputs/test.mp3
+      plan:
+        description: "plan JSON path (cut mode only)"
+        required: false
+        default: plans/test-plan.json
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Transcribe
+        if: inputs.mode == 'transcribe'
+        run: python scripts/transcribe.py "${{ inputs.source }}" out
+      - name: Cut clips
+        if: inputs.mode == 'cut'
+        run: python scripts/cut.py "${{ inputs.source }}" "${{ inputs.plan }}" out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clips-${{ inputs.mode }}-${{ github.run_id }}
+          path: out/
+          retention-days: 7
