@@ -74,7 +74,7 @@ def main(src, out_dir):
     if per_window["noise_floor"] > TOLERANCE or per_window["flatness"] > TOLERANCE:
         filters.append("afftdn=nf=-25:nt=w")                  # FFT denoiser for hiss, fan and room tone
     if per_window["hum"] > TOLERANCE:
-        filters.append("highpass=f=90")                       # rumble, plus notches if hum persists
+        filters.append("highpass=f=70,bandreject=f=50:width_type=h:w=5,bandreject=f=100:width_type=h:w=5")  # 50 Hz mains hum and its 2nd harmonic
     if per_window["snr"] > TOLERANCE and per_window["noise_floor"] <= TOLERANCE:
         filters.append("equalizer=f=2500:t=q:w=1.2:g=3")      # presence boost for distant speech
     verdict = "treat" if overall > TOLERANCE else "tolerate"
