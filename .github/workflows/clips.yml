@@ -50,10 +50,11 @@ jobs:
       - name: Fetch test audio into repo
         if: inputs.mode == 'fetch'
         run: |
-          python scripts/fetch_archive.py "${{ inputs.source }}" inputs
+          python -u scripts/fetch_archive.py "${{ inputs.source }}" inputs 2>&1 | tee -a run.log
           git config user.name github-actions
           git config user.email actions@github.com
-          git add inputs && git commit -m "test audio: ${{ inputs.source }}" && git push
+          git add inputs
+          if ! git diff --cached --quiet; then git commit -q -m "test audio: ${{ inputs.source }}" && git push; fi
       - name: Analyze clip
         if: inputs.mode == 'analyze'
         run: python scripts/analyze.py "${{ inputs.source }}" out
