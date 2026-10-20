@@ -1,0 +1,5 @@
+/usr/bin/ffmpeg
+/usr/bin/ffprobe
+-rw-r--r-- 1 runner runner 720711 Oct 20 07:08 inputs/test.mp3
+-rw-r--r-- 1 runner runner    182 Oct 20 07:08 plans/test-plan.json
+clips: 2
