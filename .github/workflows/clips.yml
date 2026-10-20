@@ -7,7 +7,7 @@ on:
         required: true
         default: transcribe
         type: choice
-        options: [transcribe, cut]
+        options: [transcribe, cut, analyze]
       source:
         description: "audio path in repo, e.g. inputs/sample.mp3"
         required: true
@@ -43,6 +43,9 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           ffmpeg -version | head -1
+      - name: Analyze clip
+        if: inputs.mode == 'analyze'
+        run: python scripts/analyze.py "${{ inputs.source }}" out
       - name: Cut clips
         if: inputs.mode == 'cut'
         shell: bash
