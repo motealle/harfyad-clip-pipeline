@@ -61,6 +61,7 @@ jobs:
           touch run.log
           gh api repos/${{ github.repository }}/git/refs -f ref=refs/heads/ci-logs -f sha=${{ github.sha }} >/dev/null 2>&1 || true
           gh api -X PUT repos/${{ github.repository }}/contents/logs/run-${{ github.run_id }}.txt -f message="log ${{ github.run_id }}" -f branch=ci-logs -f content="$(base64 -w0 run.log)" >/dev/null
+          if [ -f out/transcript.srt ]; then gh api -X PUT repos/${{ github.repository }}/contents/logs/transcript-${{ github.run_id }}.srt -f message="transcript ${{ github.run_id }}" -f branch=ci-logs -f content="$(base64 -w0 out/transcript.srt)" >/dev/null; fi
       - uses: actions/upload-artifact@v4
         with:
           name: clips-${{ inputs.mode }}-${{ github.run_id }}
